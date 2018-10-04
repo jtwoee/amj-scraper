@@ -33,17 +33,31 @@ public class Scraper {
     }
 
     public Map<String, String> scrapeByAsin(String asin) {
+        Map<String, String>  prodInfo = new HashMap<String, String>();
+        String prodName = "N/A";
+        String price = "N/A";
+        String imgUrl = "";
+        //assume no product info available
+        prodInfo.put("prodName",  prodName);
+        prodInfo.put("price", price);
+        prodInfo.put("imgUrl", imgUrl);
 
         Document doc = null;
         try {
             doc = Jsoup.connect(urlAmazon+asin).get();
         } catch (IOException e) {
             e.printStackTrace();
+            //if connection failed or 404
+            //doc = null;
+        }
+
+        if (doc == null) {
+            return prodInfo;
         }
 
         String htmlProdName = "h1#title";
 
-        String prodName = "N/A";
+
         Elements elementsProd = doc.select(htmlProdName);
         if (!elementsProd.isEmpty()) {
             prodName = elementsProd.first().text();
@@ -52,25 +66,38 @@ public class Scraper {
 
         String htmlPrice= "span#priceblock_ourprice";
 
-        String price = "N/A";
+
 
         Elements elementsPrice = doc.select(htmlPrice);
         if (!elementsPrice.isEmpty()) {
             price = elementsPrice.first().text();
         }
 
-        Map<String, String>  prodInfo = new HashMap<String, String>();
+        String htmlImage = "div#imgTagWrapperId";
+
+
+
+        Elements elementsImage = doc.select(htmlImage);
+
+        if (!elementsImage.isEmpty()) {
+            Element image = elementsImage.first().selectFirst("img");
+
+            if (image != null) {
+                imgUrl = image.attr("data-old-hires");
+            }
+        }
+
         prodInfo.put("prodName",  prodName);
         prodInfo.put("price", price);
-
-
+        prodInfo.put("imgUrl", imgUrl);
 
         return prodInfo;
     }
 
     private void doScrap() throws Exception {
         long tS = System.currentTimeMillis();
-        Document doc = Jsoup.connect("https://www.amazon.com/dp/B00GJYCIVK").get();
+//        Document doc = Jsoup.connect("https://www.amazon.com/dp/B00GJYCIVK").get();
+        Document doc = Jsoup.connect("https://www.amazon.com/dp/B00YW5DLB4").get();
         long tE = System.currentTimeMillis();
 
         System.out.println("time spent on url " + (tE - tS));
@@ -86,10 +113,25 @@ public class Scraper {
 
         tS = System.currentTimeMillis();
         Elements elementsPrice = doc.select("span#priceblock_ourprice");
-        String price = elementsPrice.first().text();
+        String price = "NA";
+        if (!elementsPrice.isEmpty()) {
+            price = elementsPrice.first().text();
+        }
+
         tE = System.currentTimeMillis();
         System.out.println("time spent on parsing price " + (tE - tS));
         System.out.println("price: " + price);
+
+        Elements elementsImage = doc.select("div#imgTagWrapperId");
+//        System.out.println(elementsImage.first());
+//        System.out.println(elementsImage.first().select("img"));
+        Element image = elementsImage.first().selectFirst("img");
+        System.out.println(image);
+        System.out.println(image.attr("data-old-hires"));
+        System.out.println(image.attr("src"));
+//        String imageUrl = image.absUrl("src");
+//        System.out.println(imageUrl);
+
 
     }
 
