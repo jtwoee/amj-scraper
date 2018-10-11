@@ -48,6 +48,19 @@ public class ScraperTest {
     }
 
     @Test
+    public void testAmazonJapanScrapByAsin() throws  Exception {
+        Map<String, String> expectedProdInfo = new HashMap<String, String>();
+        expectedProdInfo.put("prodName",  "G-Technology G-SPEED Q High-Performance 4-Bay RAID Storage Solution 16TB (USB3.0/eSATA/FireWire 800) (0G02840)");
+        expectedProdInfo.put("price", "N/A");
+        expectedProdInfo.put("imgUrl", "");
+
+        Scraper scraper = new Scraper();
+        String asinWithPrice = "B00HEHL9YS";
+        assertEquals(expectedProdInfo, scraper.scrapeByAsin(asinWithPrice));
+
+    }
+
+    @Test
     public void testScrapWhenNotExistingAsin() throws Exception {
         Scraper scraper = new Scraper();
         String asinNotFound = "NOTFOUND";

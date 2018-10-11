@@ -8,7 +8,6 @@ import org.jsoup.select.Elements;
 import org.seimicrawler.xpath.JXDocument;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +15,12 @@ import java.util.Map;
 /**
  * Created by lijunfe on 9/23/2018.
  */
-public class Scraper {
+public class ScraperAMJ {
 
-//    private final static String urlAmazon = "http://www.amazon.com/dp/";
-    private final static String urlAmazon = "http://www.amazon.co.jp/dp/";
+    private final static String urlAmazon = "https://www.amazon.co.jp/dp/";
 
     public static void main(String[] args) {
-        Scraper app =  new Scraper();
+        ScraperAMJ app =  new ScraperAMJ();
         try {
             String html = app.getHtml();
 //            System.out.println(html);
@@ -45,7 +43,13 @@ public class Scraper {
 
         Document doc = null;
         try {
-            doc = Jsoup.connect(urlAmazon+asin).get();
+//            doc = Jsoup.connect(urlAmazon+asin).get();
+             doc = Jsoup //
+                    .connect(urlAmazon+asin) //
+                    .proxy("web-proxy.rose.hp.com", 8080) // sets a HTTP proxy
+                    .userAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2") //
+                    .header("Content-Language", "en-US") //
+                    .get();
         } catch (IOException e) {
             e.printStackTrace();
             //if connection failed or 404
@@ -56,7 +60,7 @@ public class Scraper {
             return prodInfo;
         }
 
-        String htmlProdName = "h1#title";
+        String htmlProdName = "span#productTitle";
 
 
         Elements elementsProd = doc.select(htmlProdName);
@@ -84,7 +88,7 @@ public class Scraper {
             Element image = elementsImage.first().selectFirst("img");
 
             if (image != null) {
-                imgUrl = image.attr("data-old-hires");
+                imgUrl = image.attr("src");
             }
         }
 
